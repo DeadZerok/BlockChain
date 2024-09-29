@@ -1,0 +1,17 @@
+/* Establece el color de fondo de la página web a un tono claro de gris */
+body {
+    background-color: #f8f9fa;
+}
+
+/* Centra el texto del título (h1) en la página */
+h1 {
+    text-align: center;
+}
+
+/* Aplica estilo al elemento con id="response", centrando el texto,
+   añadiendo un margen superior para separación, y haciendo el texto en negrita */
+#response {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}

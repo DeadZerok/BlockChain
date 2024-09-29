@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Tarros de Aceite</title>
+    
+    <!-- Enlace a Bootstrap para usar estilos predefinidos y mejorar la presentación -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <!-- Contenedor principal -->
+    <div class="container">
+        <!-- Título principal de la página -->
+        <h1 class="mt-5">Registro de Tarros de Aceite</h1>
+
+        <!-- Formulario para registrar nuevos tarros -->
+        <form id="tarroForm" class="mt-4">
+            <!-- Campo de entrada para el ID del producto -->
+            <div class="form-group">
+                <label for="productId">ID del Producto</label>
+                <input type="text" class="form-control" id="productId" required>
+            </div>
+            <!-- Botón para enviar el formulario -->
+            <button type="submit" class="btn btn-primary">Registrar Tarro</button>
+            
+        </form>
+        <!-- Nuevo botón para abrir la ventana de búsqueda -->
+        <button id="searchButton" class="btn btn-info mt-4">Buscar Tarro</button>
+        
+        <!-- Mensaje de alerta que se mostrará si hay éxito o error -->
+        <div id="alertMessage" class="mt-4" style="display:none;"></div>
+
+        <!-- Título para la lista de tarros registrados -->
+        <h2 class="mt-5">Tarros Registrados</h2>
+        <!-- Sección donde se mostrarán los tarros registrados -->
+        <div id="tarrosList" class="mt-4"></div>
+
+         
+    </div>
+
+    <script>
+        // Evento para manejar el envío del formulario
+        document.getElementById('tarroForm').addEventListener('submit', async (e) => {
+            // Previene que el formulario se envíe de forma tradicional (sin recargar la página)
+            e.preventDefault();
+            // Obtiene el valor ingresado en el campo de texto "ID del Producto"
+            const productId = document.getElementById('productId').value;
+
+            // Realiza una solicitud POST al servidor para registrar un nuevo tarro
+            const response = await fetch('/addTarro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Envía el ID del producto en formato JSON
+                body: JSON.stringify({ productId })
+            });
+
+            // Recibe la respuesta como texto (esto maneja tanto mensajes de éxito como de error)
+            const data = await response.text(); 
+            const alertMessage = document.getElementById('alertMessage');
+            alertMessage.style.display = 'block'; // Muestra el mensaje de alerta
+
+            // Si la solicitud fue exitosa (response.ok es true)
+            if (response.ok) {
+                // Aplica la clase CSS para mostrar un mensaje de éxito
+                alertMessage.className = 'alert alert-success';
+                // Muestra el mensaje de éxito recibido del servidor
+                alertMessage.innerText = data;
+                // Recarga la lista de tarros para reflejar el nuevo registro
+                loadTarros();
+            } else {
+                // Aplica la clase CSS para mostrar un mensaje de error
+                alertMessage.className = 'alert alert-danger';
+                // Muestra el mensaje de error recibido del servidor
+                alertMessage.innerText = data;
+            }
+        });
+
+        // Función para cargar los tarros registrados en la lista
+        async function loadTarros() {
+            // Solicita la cadena de bloques al servidor
+            const response = await fetch('/chain');
+            // Convierte la respuesta en un objeto JSON
+            const chain = await response.json();
+            // Selecciona el div donde se mostrará la lista de tarros
+            const tarrosList = document.getElementById('tarrosList');
+            tarrosList.innerHTML = ''; // Limpia la lista antes de recargarla
+
+            // Itera sobre cada bloque de la cadena
+            chain.forEach(block => {
+                // Crea un div para cada bloque
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                // Define el contenido HTML del div, mostrando el ID, hash y estado del producto
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${block.data} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                    <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data}')">Marcar como Vendido</button>
+                `;
+                // Añade el bloque a la lista de tarros
+                tarrosList.appendChild(blockDiv);
+            });
+        }
+
+        // Función para marcar un tarro como vendido
+        async function sellTarro(productId) {
+            // Envía una solicitud POST al servidor para actualizar el estado de un tarro
+            const response = await fetch('/sellTarro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // Envía el ID del producto a actualizar
+                body: JSON.stringify({ productId })
+            });
+
+            // Recibe la respuesta del servidor en formato JSON
+            const data = await response.json();
+            // Muestra un mensaje con la respuesta del servidor
+            alert(data.message);
+            // Recarga la lista de tarros para reflejar los cambios
+            loadTarros();
+        }
+
+         // Abrir la nueva ventana de búsqueda
+         document.getElementById('searchButton').addEventListener('click', () => {
+            window.open('/search.html', 'Buscar Tarro', 'width=400,height=300');
+        });
+
+        // Carga la lista de tarros cuando se carga la página
+        loadTarros();
+    </script>
+</body>
+</html>

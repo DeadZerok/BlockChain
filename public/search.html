@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar Tarro</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">Buscar Tarro</h1>
+        <form id="searchForm" class="mt-4">
+            <div class="form-group">
+                <label for="searchId">ID del Producto</label>
+                <input type="text" class="form-control" id="searchId" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </form>
+        
+        <div id="searchResult" class="mt-4"></div>
+    </div>
+
+    <script>
+        document.getElementById('searchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const searchId = document.getElementById('searchId').value;
+
+            const response = await fetch(`/verifyTarro?productId=${searchId}`);
+            const data = await response.json();
+
+            const searchResult = document.getElementById('searchResult');
+            if (response.ok) {
+                searchResult.innerHTML = `
+                    <strong>ID:</strong> ${data.productId} <br>
+                    <strong>Estado:</strong> ${data.sold ? 'Vendido' : 'Disponible'}
+                `;
+            } else {
+                searchResult.innerHTML = 'Producto no encontrado';
+            }
+        });
+    </script>
+</body>
+</html>
