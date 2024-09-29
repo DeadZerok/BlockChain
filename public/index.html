@@ -17,6 +17,10 @@
             <div class="form-group">
                 <label for="productId">ID del Producto</label>
                 <input type="text" class="form-control" id="productId" required>
+                <label for="productNombre">Nombre del Producto</label>
+                <input type="text" class="form-control" id="productNombre" required>
+                <label for="productFecha">Fecha de Registro</label>
+                <input type="date" class="form-control" id="productFecha" required>
             </div>
             <button type="submit" class="btn btn-primary">Registrar Tarro</button>
         </form>
@@ -32,13 +36,21 @@
         // Manejo del envío del formulario
         document.getElementById('tarroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            //datos de los valores
             const productId = document.getElementById('productId').value;
+            const productNombre = document.getElementById('productNombre').value;
+            const productFecha = document.getElementById('productFecha').value;
 
             // Registro del tarro
             const response = await fetch('/addTarro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId })
+                body: JSON.stringify({ 
+                    productId,
+                    productNombre,
+                    productFecha 
+                })
             });
 
             const data = await response.text();
