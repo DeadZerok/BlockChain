@@ -3,41 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buscar Tarro</title>
+    <title>Búsqueda de Tarros de Aceite</title>
+    
+    <!-- Enlace a Bootstrap para estilos -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container">
-        <h1 class="mt-5">Buscar Tarro</h1>
+        <h1 class="mt-5">Búsqueda de Tarros Registrados</h1>
+        
+        <!-- Formulario de búsqueda por ID de producto -->
         <form id="searchForm" class="mt-4">
             <div class="form-group">
-                <label for="searchId">ID del Producto</label>
-                <input type="text" class="form-control" id="searchId" required>
+                <label for="searchProductId">Buscar por ID del Producto</label>
+                <input type="text" class="form-control" id="searchProductId">
             </div>
-            <button type="submit" class="btn btn-primary">Buscar</button>
+            <button type="submit" class="btn btn-info">Buscar</button>
         </form>
-        
-        <div id="searchResult" class="mt-4"></div>
+
+        <!-- Sección donde se mostrará la lista de tarros registrados -->
+        <div id="tarrosList" class="mt-4"></div>
     </div>
 
     <script>
+        // Función para cargar los tarros registrados
+        async function loadTarros() {
+            const response = await fetch('/chain');
+            const chain = await response.json();
+            const tarrosList = document.getElementById('tarrosList');
+            tarrosList.innerHTML = '';
+
+            // Itera sobre la cadena de bloques para mostrar los tarros
+            chain.forEach(block => {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${block.data} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                    <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data}')">Marcar como Vendido</button>
+                `;
+                tarrosList.appendChild(blockDiv);
+            });
+        }
+
+        // Función para marcar un tarro como vendido
+        async function sellTarro(productId) {
+            const response = await fetch('/sellTarro', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+            loadTarros();
+        }
+
+        // Evento para manejar la búsqueda de un tarro por su ID
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const searchId = document.getElementById('searchId').value;
+            const productId = document.getElementById('searchProductId').value;
+            
+            // Si no se ingresa un ID, se cargan todos los tarros
+            if (!productId) {
+                loadTarros();
+                return;
+            }
 
-            const response = await fetch(`/verifyTarro?productId=${searchId}`);
-            const data = await response.json();
+            // Realiza una búsqueda filtrada en la cadena
+            const response = await fetch('/chain');
+            const chain = await response.json();
+            const tarrosList = document.getElementById('tarrosList');
+            tarrosList.innerHTML = ''; // Limpia la lista
 
-            const searchResult = document.getElementById('searchResult');
-            if (response.ok) {
-                searchResult.innerHTML = `
-                    <strong>ID:</strong> ${data.productId} <br>
-                    <strong>Estado:</strong> ${data.sold ? 'Vendido' : 'Disponible'}
+            const filteredBlock = chain.find(block => block.data === productId);
+
+            if (filteredBlock) {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${filteredBlock.data} <br>
+                    <strong>Hash:</strong> ${filteredBlock.hash} <br>
+                    <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
+                    <button class="btn btn-warning mt-2" onclick="sellTarro('${filteredBlock.data}')">Marcar como Vendido</button>
                 `;
+                tarrosList.appendChild(blockDiv);
             } else {
-                searchResult.innerHTML = 'Producto no encontrado';
+                tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
             }
         });
+
+        // Carga la lista completa de tarros cuando se abre la página
+        loadTarros();
     </script>
 </body>
 </html>
