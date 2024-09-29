@@ -49,16 +49,25 @@ function handlePostRequest(req, res) {
             const { productId } = data;
 
             // Buscar el bloque correspondiente al producto por su ID
-            const block = aceiteChain.chain.find(b => b.data === productId);
+            const block = aceiteChain.chain.find(b => b.data.productId === productId);
             if (!block) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
                 res.end('Tarro no encontrado.');
                 return;
             }
 
+             // Verifica si el tarro ya ha sido vendido
+            if (block.sold) {
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end('Este tarro ya fue vendido.');
+                return;
+            }
+
             // Marcar el tarro como vendido y modificar el hash
             block.sold = true;
             block.hash = 'VENDIDO_' + block.hash;
+
+            // Responder con la cadena de bloques actualizada
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Tarro marcado como vendido.', chain: aceiteChain.chain }));
         }

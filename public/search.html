@@ -40,13 +40,13 @@
                 const blockDiv = document.createElement('div');
                 blockDiv.className = 'border p-2 mb-2';
                 blockDiv.innerHTML = `
-                    <strong>ID:</strong> ${block.data.productId} <br>
-                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
-                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
-                    <strong>Hash:</strong> ${block.hash} <br>
-                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
-                    <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}')">Marcar como Vendido</button>
-                `;
+                <strong>ID:</strong> ${block.data.productId} <br>
+                <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
+                <strong>Hash:</strong> ${block.hash} <br>
+                <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}')">Marcar como Vendido</button>
+            `;
                 tarrosList.appendChild(blockDiv);
             });
         }
@@ -60,8 +60,12 @@
             });
 
             const data = await response.json();
-            alert(data.message);
-            loadTarros();
+                if (response.ok) {
+                    alert(data.message);
+                    loadTarros(); // Recarga la lista de tarros después de marcar uno como vendido
+                } else {
+                    alert('Error: ' + data.message);
+                }
         }
 
         // Evento para manejar la búsqueda de un tarro por su ID
@@ -76,31 +80,32 @@
             }
 
             // Realiza una búsqueda filtrada en la cadena
-            const response = await fetch('/chain');
-            const chain = await response.json();
-            const tarrosList = document.getElementById('tarrosList');
-            tarrosList.innerHTML = ''; // Limpia la lista
+        const response = await fetch('/chain');
+        const chain = await response.json();
+        const tarrosList = document.getElementById('tarrosList');
+        tarrosList.innerHTML = ''; // Limpia la lista
 
-            const filteredBlock = chain.find(block => block.data === productId);
+        const filteredBlock = chain.find(block => block.data.productId === productId);
 
-            if (filteredBlock) {
-                const blockDiv = document.createElement('div');
-                blockDiv.className = 'border p-2 mb-2';
-                blockDiv.innerHTML = `
-                    <strong>ID:</strong> ${filteredBlock.data} <br>
-                    <strong>Hash:</strong> ${filteredBlock.hash} <br>
-                    <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
-                    <button class="btn btn-warning mt-2" onclick="sellTarro('${filteredBlock.data}')">Marcar como Vendido</button>
-                `;
-                tarrosList.appendChild(blockDiv);
-            } else {
-                tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
-            }
-        });
+        if (filteredBlock) {
+            const blockDiv = document.createElement('div');
+            blockDiv.className = 'border p-2 mb-2';
+            blockDiv.innerHTML = `
+                <strong>ID:</strong> ${filteredBlock.data.productId} <br>
+                <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
+                <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
+                <strong>Hash:</strong> ${filteredBlock.hash} <br>
+                <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
+                <button class="btn btn-warning mt-2" onclick="sellTarro('${filteredBlock.data.productId}')">Marcar como Vendido</button>
+            `;
+            tarrosList.appendChild(blockDiv);
+        } else {
+            tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
+        }
+    });
 
-
-        // Carga la lista completa de tarros cuando se abre la página
-        loadTarros();
+    // Carga la lista completa de tarros cuando se abre la página
+    loadTarros();
 
         
  //redirige
