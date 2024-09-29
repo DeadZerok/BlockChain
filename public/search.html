@@ -6,7 +6,7 @@
     <title>Búsqueda de Tarros de Aceite</title>
     
     <!-- Enlace a Bootstrap para estilos -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body>
     <div class="container">
@@ -26,7 +26,10 @@
         <div id="tarrosList" class="mt-4"></div>
     </div>
 
+    
     <script>
+        let selectedProductId = null;
+
         // Función para cargar los tarros registrados
         async function loadTarros() {
             const response = await fetch('/chain');
@@ -35,37 +38,78 @@
             tarrosList.innerHTML = '';
 
             // Itera sobre la cadena de bloques para mostrar los tarros
-            // visualisacionde los datos 
             chain.forEach(block => {
                 const blockDiv = document.createElement('div');
                 blockDiv.className = 'border p-2 mb-2';
                 blockDiv.innerHTML = `
-                <strong>ID:</strong> ${block.data.productId} <br>
-                <strong>Nombre:</strong> ${block.data.productNombre} <br>
-                <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
-                <strong>Hash:</strong> ${block.hash} <br>
-                <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
-                <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}')">Marcar como Vendido</button>
-            `;
+                    <strong>ID:</strong> ${block.data.productId} <br>
+                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-warning dropdown-toggle mt-2" data-toggle="dropdown" aria-expanded="false">
+                            Marcar como Vendido
+                        </button>
+                        <form class="dropdown-menu p-4" onsubmit="sellTarro(event, '${block.data.productId}')">
+                            <div class="mb-3">
+                                <label for="compradorNombre-${block.data.productId}" class="form-label">Nombre del Comprador</label>
+                                <input type="text" class="form-control" id="compradorNombre-${block.data.productId}" placeholder="Nombre del comprador" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="compradorFecha-${block.data.productId}" class="form-label">Fecha de Compra</label>
+                                <input type="date" class="form-control" id="compradorFecha-${block.data.productId}" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">Guardar y Marcar como Vendido</button>
+                        </form>
+                    </div>
+                    <button class="btn btn-info mt-2 ml-2" onclick="mostrarInformacion('${block.data.productId}')">Información</button>
+                    <div id="info-${block.data.productId}" style="display: none;" class="mt-2">
+                        <strong>Comprador:</strong> ${block.data.compradorNombre || 'N/A'} <br>
+                        <strong>Fecha de Compra:</strong> ${block.data.compradorFecha ? new Date(block.data.compradorFecha).toLocaleDateString() : 'N/A'}
+                    </div>
+                `;
                 tarrosList.appendChild(blockDiv);
             });
         }
 
         // Función para marcar un tarro como vendido
-        async function sellTarro(productId) {
+        async function sellTarro(event, productId) {
+            event.preventDefault();
+            const compradorNombre = document.getElementById(`compradorNombre-${productId}`).value;
+            const compradorFecha = document.getElementById(`compradorFecha-${productId}`).value;
+
             const response = await fetch('/sellTarro', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ productId })
+                body: JSON.stringify({ 
+                    productId, 
+                    compradorNombre, 
+                    compradorFecha 
+                })
             });
 
             const data = await response.json();
-                if (response.ok) {
-                    alert(data.message);
-                    loadTarros(); // Recarga la lista de tarros después de marcar uno como vendido
-                } else {
-                    alert('Error: ' + data.message);
-                }
+            if (response.ok) {
+                alert(data.message);
+
+                // Actualiza los datos en el bloque "Información" sin recargar la página
+                const infoDiv = document.getElementById(`info-${productId}`);
+                infoDiv.innerHTML = `
+                    <strong>Comprador:</strong> ${compradorNombre} <br>
+                    <strong>Fecha de Compra:</strong> ${new Date(compradorFecha).toLocaleDateString()}
+                `;
+                infoDiv.style.display = 'block'; // Mostrar la información después de guardar
+
+            } else {
+                alert('Error: ' + data.message);
+            }
+        }
+
+        // Función para mostrar la información del comprador
+        function mostrarInformacion(productId) {
+            const infoDiv = document.getElementById(`info-${productId}`);
+            infoDiv.style.display = infoDiv.style.display === 'none' ? 'block' : 'none';
         }
 
         // Evento para manejar la búsqueda de un tarro por su ID
@@ -80,39 +124,61 @@
             }
 
             // Realiza una búsqueda filtrada en la cadena
-        const response = await fetch('/chain');
-        const chain = await response.json();
-        const tarrosList = document.getElementById('tarrosList');
-        tarrosList.innerHTML = ''; // Limpia la lista
+            const response = await fetch('/chain');
+            const chain = await response.json();
+            const tarrosList = document.getElementById('tarrosList');
+            tarrosList.innerHTML = ''; // Limpia la lista
 
-        const filteredBlock = chain.find(block => block.data.productId === productId);
+            const filteredBlock = chain.find(block => block.data.productId === productId);
 
-        if (filteredBlock) {
-            const blockDiv = document.createElement('div');
-            blockDiv.className = 'border p-2 mb-2';
-            blockDiv.innerHTML = `
-                <strong>ID:</strong> ${filteredBlock.data.productId} <br>
-                <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
-                <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
-                <strong>Hash:</strong> ${filteredBlock.hash} <br>
-                <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
-                <button class="btn btn-warning mt-2" onclick="sellTarro('${filteredBlock.data.productId}')">Marcar como Vendido</button>
-            `;
-            tarrosList.appendChild(blockDiv);
-        } else {
-            tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
-        }
-    });
-
-    // Carga la lista completa de tarros cuando se abre la página
-    loadTarros();
-
-        
- //redirige
- document.getElementById('registro').addEventListener('click', () => {
-            window.location.href = '/';
+            if (filteredBlock) {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${filteredBlock.data.productId} <br>
+                    <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
+                    <strong>Hash:</strong> ${filteredBlock.hash} <br>
+                    <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-warning dropdown-toggle mt-2" data-toggle="dropdown" aria-expanded="false">
+                            Marcar como Vendido
+                        </button>
+                        <form class="dropdown-menu p-4" onsubmit="sellTarro(event, '${filteredBlock.data.productId}')">
+                            <div class="mb-3">
+                                <label for="compradorNombre-${filteredBlock.data.productId}" class="form-label">Nombre del Comprador</label>
+                                <input type="text" class="form-control" id="compradorNombre-${filteredBlock.data.productId}" placeholder="Nombre del comprador" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="compradorFecha-${filteredBlock.data.productId}" class="form-label">Fecha de Compra</label>
+                                <input type="date" class="form-control" id="compradorFecha-${filteredBlock.data.productId}" required>
+                            </div>
+                            <button type="submit" class="btn btn-success">Guardar y Marcar como Vendido</button>
+                        </form>
+                    </div>
+                    <button class="btn btn-info mt-2 ml-2" onclick="mostrarInformacion('${filteredBlock.data.productId}')">Información</button>
+                    <div id="info-${filteredBlock.data.productId}" style="display: none;" class="mt-2">
+                        <strong>Comprador:</strong> ${filteredBlock.data.compradorNombre || 'N/A'} <br>
+                        <strong>Fecha de Compra:</strong> ${filteredBlock.data.compradorFecha ? new Date(filteredBlock.data.compradorFecha).toLocaleDateString() : 'N/A'}
+                    </div>
+                `;
+                tarrosList.appendChild(blockDiv);
+            } else {
+                tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
+            }
         });
-       
+
+        // Carga la lista completa de tarros cuando se abre la página
+        loadTarros();
+
+        // Redirige a la página de registro cuando se hace clic en "Registrar Tarro"
+    document.getElementById('registro').addEventListener('click', () => {
+        window.location.href = '/';  // Cambia la URL si es necesario
+    });
     </script>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
