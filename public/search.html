@@ -19,6 +19,7 @@
                 <input type="text" class="form-control" id="searchProductId">
             </div>
             <button type="submit" class="btn btn-info">Buscar</button>
+            <button id="registro" type="submit" class="btn btn-success">registrar tarro</button>
         </form>
 
         <!-- Sección donde se mostrará la lista de tarros registrados -->
@@ -94,8 +95,16 @@
             }
         });
 
+
         // Carga la lista completa de tarros cuando se abre la página
         loadTarros();
+
+        
+ //redirige
+ document.getElementById('registro').addEventListener('click', () => {
+            window.location.href = '/';
+        });
+       
     </script>
 </body>
 </html>
