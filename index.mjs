@@ -34,7 +34,7 @@ function handlePostRequest(req, res) {
             }
 
             // Verificar si el ID ya existe en la cadena de bloques
-            const exists = aceiteChain.chain.some(block => block.data === productId);
+            const exists = aceiteChain.chain.some(block => block.data.productId === productId);
             if (exists) {
                 res.writeHead(409, { 'Content-Type': 'text/plain' });
                 res.end('Este ID ya fue registrado.');
