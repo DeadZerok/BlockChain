@@ -35,14 +35,17 @@
             tarrosList.innerHTML = '';
 
             // Itera sobre la cadena de bloques para mostrar los tarros
+            // visualisacionde los datos 
             chain.forEach(block => {
                 const blockDiv = document.createElement('div');
                 blockDiv.className = 'border p-2 mb-2';
                 blockDiv.innerHTML = `
-                    <strong>ID:</strong> ${block.data} <br>
+                    <strong>ID:</strong> ${block.data.productId} <br>
+                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${block.hash} <br>
                     <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
-                    <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data}')">Marcar como Vendido</button>
+                    <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}')">Marcar como Vendido</button>
                 `;
                 tarrosList.appendChild(blockDiv);
             });

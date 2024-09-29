@@ -22,13 +22,14 @@ function handlePostRequest(req, res) {
         const { url } = req;
         const data = JSON.parse(body);
 
+        //datos del tarro
         if (url === '/addTarro') {
-            const { productId } = data;
+            const { productId, productNombre, productFecha } = data;
 
-            // Validar que el ID del producto esté presente en la solicitud
-            if (!productId) {
+             // Validar que todos los datos estén presentes en la solicitud
+            if (!productId || !productNombre || !productFecha) {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end('El ID del producto es requerido.');
+                res.end('Todos los campos (ID, nombre y fecha) son requeridos.');
                 return;
             }
 
@@ -41,7 +42,7 @@ function handlePostRequest(req, res) {
             }
 
             // Añadir un nuevo bloque con el producto ID a la cadena de bloques
-            aceiteChain.addBlock(productId);
+            aceiteChain.addBlock(productId, productNombre, productFecha);
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Tarro añadido con éxito.');
         } else if (url === '/sellTarro') {

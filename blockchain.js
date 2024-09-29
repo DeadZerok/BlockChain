@@ -5,19 +5,20 @@ const SHA256 = require('crypto-js/sha256');
 class Block {
     // El constructor inicializa un bloque con su índice, los datos que almacena y la referencia al hash anterior
     constructor(index, data, previousHash = '') {
-        this.index = index;  // Índice del bloque dentro de la cadena
+        this.index = index;
         this.date = new Date();  // Fecha de creación del bloque
-        this.data = data;  // Datos que almacena el bloque (en este caso, el ID del tarro)
+        this.data = data;  // Datos que almacena el bloque (ahora será un objeto con varios campos)
         this.previousHash = previousHash;  // Hash del bloque anterior
         this.hash = this.createHash();  // Hash calculado del bloque actual
         this.nonce = 0;  // Valor usado para resolver la prueba de trabajo (minado)
         this.sold = false;  // Propiedad que indica si el tarro está vendido o no
     }
 
+
     // Función para crear el hash del bloque combinando su contenido
     createHash() {
         // Genera el hash a partir de los atributos del bloque, incluyendo el nonce para el minado
-        return SHA256(this.index + this.date + this.data + this.previousHash + this.nonce).toString();
+        return SHA256(this.index + this.date + JSON.stringify(this.data) + this.previousHash + this.nonce).toString();
     }
 
     // Función que realiza la minería (prueba de trabajo) del bloque
@@ -40,7 +41,7 @@ class BlockChain {
 
     // Crea el bloque génesis, el primer bloque de la cadena
     createFirstBlock(genesis) {
-        return new Block(0, genesis);  // El bloque génesis tiene índice 0 y ningún bloque anterior
+        return new Block(0, { productNombre: genesis }, '');  // El bloque génesis tiene índice 0 y ningún bloque anterior
     }
 
     // Función que devuelve el último bloque de la cadena
@@ -49,8 +50,16 @@ class BlockChain {
     }
 
     // Función que añade un nuevo bloque con los datos proporcionados
-    addBlock(data) {
+    addBlock(productId, productNombre, productFecha) {
         let prevBlock = this.getLastBlock();  // Obtiene el último bloque actual de la cadena
+        
+        // Crear un objeto con toda la información del tarro
+        const data = {
+            productId,
+            productNombre,
+            productFecha
+        };
+
         // Crea un nuevo bloque con el índice siguiente al último bloque, y su hash anterior
         let block = new Block(prevBlock.index + 1, data, prevBlock.hash);
         // Realiza el minado del nuevo bloque para que cumpla con la dificultad establecida
