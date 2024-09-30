@@ -4,41 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Búsqueda de Tarros de Aceite</title>
-    
-    <!-- Enlace a Bootstrap para estilos -->
+    <link rel="stylesheet" href="css/style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        body {
+            background-color: #000; /* Fondo negro */
+            color: #000; /* Texto negro */
+            margin: 0; /* Sin margen */
+        }
+    
+        .navbar-nav {
+            margin-left: auto; /* Alinea a la derecha */
+            margin-right: auto; /* Alinea a la izquierda */
+            display: flex; /* Usar flexbox */
+            justify-content: center; /* Centrar horizontalmente */
+            width: 100%; /* Ocupa todo el ancho */
+        }
+    
+        .container {
+            background-color: white; /* Fondo blanco */
+            border-radius: 15px; /* Bordes redondeados */
+            padding: 20px; /* Espaciado interno */
+            width: 100%; /* Ancho completo */
+            max-width: 800px; /* Ancho máximo del contenedor */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para darle profundidad */
+            margin: 50px auto; /* Centrar el contenedor */
+        }
+    
+        .button-container {
+            display: flex; /* Usar flexbox para los botones */
+            justify-content: space-between; /* Espacio entre los botones */
+            margin-top: 20px; /* Espaciado superior */
+        }
+    
+        /* Centrar el contenido de la página */
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 60px); /* Ajustar altura para que no cubra el navbar */
+        }
+
+        .mt-5{
+            text-align: center;
+        }
+        .form-group {
+        text-align: center; /* Centrar el contenido del grupo */
+        margin-bottom: 30px; /* Espacio inferior entre grupos */
+    }
+    </style>
+    
 </head>
 <body>
-    <div class="container">
-        <h1 class="mt-5">Búsqueda de Tarros Registrados</h1>
-        
-        <!-- Formulario de búsqueda por ID de producto -->
-        <form id="searchForm" class="mt-4">
-            <div class="form-group">
-                <label for="searchProductId">Buscar por ID del Producto</label>
-                <input type="text" class="form-control" id="searchProductId">
-            </div>
-            <button type="submit" class="btn btn-info">Buscar</button>
-            <button id="registro" type="submit" class="btn btn-success">registrar tarro</button>
-        </form>
-
-        <!-- Sección donde se mostrará la lista de tarros registrados -->
-        <div id="tarrosList" class="mt-4"></div>
-    </div>
-
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="/">Aceites Premium</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="/">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/registro.html">Registro</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/search.html">Verificación</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <header>
+        <div class="container">
+            <h1 class="mt-5" >Búsqueda de Aceites Registrados</h1>
+            <form id="searchForm" class="mt-4">
+                <div class="form-group">
+                    <label for="searchProductId">Buscar por ID del Producto</label>
+                    <input type="text" class="form-control" id="searchProductId">
+                </div>
+                <button type="submit" class="btn btn-success">Buscar</button>
+                <button id="registro" type="button" class="btn btn-primary">Registrar Tarro</button>
+            </form>
+            <div id="tarrosList" class="mt-4"></div>
+            <div id="pagination" class="mt-3"></div>
+        </div>
     
-    <script>
-        let selectedProductId = null;
+        <div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="sellModalLabel">Marcar como Vendido</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="nombreCliente" class="form-label">Nombre del Comprador</label>
+                            <input type="text" class="form-control" id="nombreCliente" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="fechaVenta" class="form-label">Fecha de Venta</label>
+                            <input type="date" class="form-control" id="fechaVenta" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" id="confirmSellButton">Confirmar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Modal de Mensajes -->
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="messageModalBody">
+                        <!-- El mensaje se insertará aquí -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
 
-        // Función para cargar los tarros registrados
-        async function loadTarros() {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+    <script>
+        let currentPage = 1;
+        const itemsPerPage = 6;
+
+        async function loadTarros(page = 1) {
             const response = await fetch('/chain');
             const chain = await response.json();
             const tarrosList = document.getElementById('tarrosList');
+            const pagination = document.getElementById('pagination');
             tarrosList.innerHTML = '';
+            pagination.innerHTML = '';
 
-            // Itera sobre la cadena de bloques para mostrar los tarros
-            chain.forEach(block => {
+            const totalItems = chain.length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+
+            for (let i = startIndex; i < endIndex; i++) {
+                const block = chain[i];
                 const blockDiv = document.createElement('div');
                 blockDiv.className = 'border p-2 mb-2';
                 blockDiv.innerHTML = `
@@ -47,87 +166,87 @@
                     <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${block.hash} <br>
                     <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-warning dropdown-toggle mt-2" data-toggle="dropdown" aria-expanded="false">
-                            Marcar como Vendido
-                        </button>
-                        <form class="dropdown-menu p-4" onsubmit="sellTarro(event, '${block.data.productId}')">
-                            <div class="mb-3">
-                                <label for="compradorNombre-${block.data.productId}" class="form-label">Nombre del Comprador</label>
-                                <input type="text" class="form-control" id="compradorNombre-${block.data.productId}" placeholder="Nombre del comprador" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="compradorFecha-${block.data.productId}" class="form-label">Fecha de Compra</label>
-                                <input type="date" class="form-control" id="compradorFecha-${block.data.productId}" required>
-                            </div>
-                            <button type="submit" class="btn btn-success">Guardar y Marcar como Vendido</button>
-                        </form>
-                    </div>
-                    <button class="btn btn-info mt-2 ml-2" onclick="mostrarInformacion('${block.data.productId}')">Información</button>
-                    <div id="info-${block.data.productId}" style="display: none;" class="mt-2">
-                        <strong>Comprador:</strong> ${block.data.compradorNombre || 'N/A'} <br>
-                        <strong>Fecha de Compra:</strong> ${block.data.compradorFecha ? new Date(block.data.compradorFecha).toLocaleDateString() : 'N/A'}
-                    </div>
                 `;
+
+                if (!block.sold) {
+                    blockDiv.innerHTML += `
+                        <button class="btn btn-warning mt-2" id="sellButton-${block.data.productId}" onclick="sellTarro('${block.data.productId}', this)">Marcar como Vendido</button>
+                    `;
+                } else {
+                    const nombreCliente = localStorage.getItem(`soldName-${block.data.productId}`) || 'Desconocido';
+                    const fechaVenta = localStorage.getItem(`fechaVenta-${block.data.productId}`) || 'No disponible';
+                    blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
+                }
+
                 tarrosList.appendChild(blockDiv);
-            });
-        }
+            }
 
-        // Función para marcar un tarro como vendido
-        async function sellTarro(event, productId) {
-            event.preventDefault();
-            const compradorNombre = document.getElementById(`compradorNombre-${productId}`).value;
-            const compradorFecha = document.getElementById(`compradorFecha-${productId}`).value;
-
-            const response = await fetch('/sellTarro', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    productId, 
-                    compradorNombre, 
-                    compradorFecha 
-                })
-            });
-
-            const data = await response.json();
-            if (response.ok) {
-                alert(data.message);
-
-                // Actualiza los datos en el bloque "Información" sin recargar la página
-                const infoDiv = document.getElementById(`info-${productId}`);
-                infoDiv.innerHTML = `
-                    <strong>Comprador:</strong> ${compradorNombre} <br>
-                    <strong>Fecha de Compra:</strong> ${new Date(compradorFecha).toLocaleDateString()}
-                `;
-                infoDiv.style.display = 'block'; // Mostrar la información después de guardar
-
-            } else {
-                alert('Error: ' + data.message);
+            for (let i = 1; i <= totalPages; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.className = 'btn btn-secondary mx-1';
+                pageButton.innerText = i;
+                pageButton.onclick = () => {
+                    currentPage = i;
+                    loadTarros(currentPage);
+                };
+                pagination.appendChild(pageButton);
             }
         }
 
-        // Función para mostrar la información del comprador
-        function mostrarInformacion(productId) {
-            const infoDiv = document.getElementById(`info-${productId}`);
-            infoDiv.style.display = infoDiv.style.display === 'none' ? 'block' : 'none';
+        function sellTarro(productId, button) {
+            const modal = new bootstrap.Modal(document.getElementById('sellModal'));
+            modal.show();
+
+            document.getElementById('confirmSellButton').onclick = async function () {
+                const nombreCliente = document.getElementById('nombreCliente').value;
+                const fechaVenta = document.getElementById('fechaVenta').value;
+
+                if (!nombreCliente || !fechaVenta) {
+                    showMessage("El nombre del comprador y la fecha de venta son obligatorios.", "error");
+                    return;
+                }
+
+                const response = await fetch('/sellTarro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ productId, nombreCliente, fechaVenta })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, "success");
+                    button.style.display = 'none';
+                    localStorage.setItem(`sold-${productId}`, 'true');
+                    localStorage.setItem(`soldName-${productId}`, nombreCliente);
+                    localStorage.setItem(`fechaVenta-${productId}`, fechaVenta);
+                    loadTarros(currentPage);
+                    modal.hide();
+                } else {
+                    showMessage('Error: ' + data.message, "error");
+                }
+            };
         }
 
-        // Evento para manejar la búsqueda de un tarro por su ID
+        function showMessage(message, type) {
+            const messageModalBody = document.getElementById('messageModalBody');
+            messageModalBody.innerText = message;
+            const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+            messageModal.show();
+        }
+
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const productId = document.getElementById('searchProductId').value;
-            
-            // Si no se ingresa un ID, se cargan todos los tarros
+
             if (!productId) {
-                loadTarros();
+                loadTarros(currentPage);
                 return;
             }
 
-            // Realiza una búsqueda filtrada en la cadena
             const response = await fetch('/chain');
             const chain = await response.json();
             const tarrosList = document.getElementById('tarrosList');
-            tarrosList.innerHTML = ''; // Limpia la lista
+            tarrosList.innerHTML = '';
 
             const filteredBlock = chain.find(block => block.data.productId === productId);
 
@@ -139,46 +258,26 @@
                     <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
                     <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${filteredBlock.hash} <br>
-                    <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
-                    <div class="dropdown">
-                        <button type="button" class="btn btn-warning dropdown-toggle mt-2" data-toggle="dropdown" aria-expanded="false">
-                            Marcar como Vendido
-                        </button>
-                        <form class="dropdown-menu p-4" onsubmit="sellTarro(event, '${filteredBlock.data.productId}')">
-                            <div class="mb-3">
-                                <label for="compradorNombre-${filteredBlock.data.productId}" class="form-label">Nombre del Comprador</label>
-                                <input type="text" class="form-control" id="compradorNombre-${filteredBlock.data.productId}" placeholder="Nombre del comprador" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="compradorFecha-${filteredBlock.data.productId}" class="form-label">Fecha de Compra</label>
-                                <input type="date" class="form-control" id="compradorFecha-${filteredBlock.data.productId}" required>
-                            </div>
-                            <button type="submit" class="btn btn-success">Guardar y Marcar como Vendido</button>
-                        </form>
-                    </div>
-                    <button class="btn btn-info mt-2 ml-2" onclick="mostrarInformacion('${filteredBlock.data.productId}')">Información</button>
-                    <div id="info-${filteredBlock.data.productId}" style="display: none;" class="mt-2">
-                        <strong>Comprador:</strong> ${filteredBlock.data.compradorNombre || 'N/A'} <br>
-                        <strong>Fecha de Compra:</strong> ${filteredBlock.data.compradorFecha ? new Date(filteredBlock.data.compradorFecha).toLocaleDateString() : 'N/A'}
-                    </div>
+                    <strong>Estado:</strong> ${filteredBlock.sold || localStorage.getItem(`sold-${filteredBlock.data.productId}`) ? 'Vendido' : 'Disponible'} <br>
                 `;
+
+                if (!(filteredBlock.sold || localStorage.getItem(`sold-${filteredBlock.data.productId}`))) {
+                    blockDiv.innerHTML += `
+                        <button class="btn btn-warning mt-2" id="sellButton-${filteredBlock.data.productId}" onclick="sellTarro('${filteredBlock.data.productId}', this)">Marcar como Vendido</button>
+                    `;
+                }
+
                 tarrosList.appendChild(blockDiv);
             } else {
                 tarrosList.innerHTML = '<p class="text-danger">No se encontró ningún tarro con ese ID.</p>';
             }
         });
 
-        // Carga la lista completa de tarros cuando se abre la página
         loadTarros();
-
         // Redirige a la página de registro cuando se hace clic en "Registrar Tarro"
-    document.getElementById('registro').addEventListener('click', () => {
-        window.location.href = '/';  // Cambia la URL si es necesario
-    });
+        document.getElementById('registro').onclick = function() {
+            window.location.href = '/registro.html'; // Cambia la URL según sea necesario
+        };
     </script>
-
-
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -125,11 +125,39 @@ function handleGetRequest(req, res) {
                 res.end();
             }
         });
-    } else {
+    } else if (method === 'GET' && url === '/registro.html') {
+        // Servir el archivo search.html
+        const filepath = path.join(__dirname, 'public', 'registro.html');
+        fs.readFile(filepath, (err, data) => {
+            if (err) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.write('404 Not Found');
+                res.end();
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.write(data);
+                res.end();
+            }
+        });
+    }else {
         // Manejar cualquier otra ruta no definida con un error 404
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('404 Not Found');
     }
+}
+
+// Función para servir archivos estáticos
+function serveStaticFile(res, filePath, contentType) {
+    const fullPath = path.join(__dirname, 'public', filePath);
+    fs.readFile(fullPath, (err, data) => {
+        if (err) {
+            res.writeHead(404, { 'Content-Type': 'text/plain' });
+            res.end('404 Not Found');
+        } else {
+            res.writeHead(200, { 'Content-Type': contentType });
+            res.end(data);
+        }
+    });
 }
 
 // Crear el servidor HTTP
@@ -149,6 +177,7 @@ const server = createServer((req, res) => {
 });
 
 // Escuchar en el puerto 3000 y la dirección local 127.0.0.1
-server.listen(3000, '127.0.0.1', () => {
-    console.log('Servidor escuchando en http://127.0.0.1:3000');
+const PORT = 3000;
+server.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });

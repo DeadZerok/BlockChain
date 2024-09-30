@@ -1,0 +1,49 @@
+body {
+    background-color: #000; /* Fondo negro */
+    color: #fff; /* Texto blanco */
+    text-align: center; /* Centrar todo el texto en el body */
+}
+
+.navbar {
+    background-color: #000000; /* Fondo del navbar */
+}
+
+.navbar-nav {
+    margin: auto; /* Centrar los elementos del navbar */
+}
+
+.btn-warning {
+    background-color: #ffc107; /* Color del botón */
+    border-color: #ffc107; /* Borde del botón */
+}
+
+.header-bg {
+    background-image: url('https://heromotos.com.gt/wp-content/uploads/2023/01/comoRevisar.jpg');
+    background-size: cover; /* Cubrir todo el contenedor */
+    background-position: right center; /* Posicionar a la derecha */
+    height: 100vh; /* Altura completa de la ventana */
+    position: relative;
+    z-index: 1;
+    display: flex; /* Usar flexbox */
+    justify-content: center; /* Centrar horizontalmente */
+    align-items: center; /* Centrar verticalmente */
+}
+
+.header-bg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.5) 10%); /* Degradado */
+    z-index: 2; /* Asegurarse de que esté sobre la imagen */
+}
+
+.header-content {
+    position: relative;
+    z-index: 3; /* Asegurarse de que el texto esté sobre el desvanecimiento */
+    text-align: center; /* Centrar el texto */
+    padding: 20px;
+    width: 100%; /* Ancho completo */
+}
