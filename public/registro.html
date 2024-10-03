@@ -95,15 +95,13 @@
 
     <header class="flex-center">
         <div class="container">
-            <h1 class="mt-5">Registro de Tarros de Aceite</h1>
+            <h1 class="mt-5">Registro de producto</h1>
 
             <!-- Formulario de registro -->
             <form id="tarroForm" class="mt-4">
                 <div class="form-group">
                     <label for="productId">ID del Producto</label>
                     <input type="text" class="form-control" id="productId" required>
-                    <label for="productNombre">Nombre del Producto</label>
-                    <input type="text" class="form-control" id="productNombre" required>
 
                     <label for="productDistribuidor">Distribuido a</label>
                     <select class="form-select" id="productDistribuidor" aria-label="productDistribuidor">
@@ -112,6 +110,8 @@
                         <option value="Castrol">Castrol</option>
                     </select>
 
+                    <label for="productNombre">Nombre del Producto</label>
+                    <input type="text" class="form-control" id="productNombre" required>
                     <label for="productFecha">Fecha de Registro</label>
                     <input type="date" class="form-control" id="productFecha" required>
                 </div>

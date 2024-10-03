@@ -50,9 +50,9 @@
             text-align: center;
         }
         .form-group {
-        text-align: center; /* Centrar el contenido del grupo */
-        margin-bottom: 30px; /* Espacio inferior entre grupos */
-    }
+            text-align: center; /* Centrar el contenido del grupo */
+            margin-bottom: 30px; /* Espacio inferior entre grupos */
+        }
     </style>
     
 </head>
@@ -72,74 +72,28 @@
                     <a class="nav-link" href="/registro.html">Registro</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/search.html">Distribuidor</a>
+                    <a class="nav-link" href="/ventaAceite.html">Distribuidor</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/busquedaClient.html">Verificacion</a>
                 </li>
-                
             </ul>
         </div>
     </nav>
     <header>
         <div class="container">
-            <h1 class="mt-5" >Búsqueda de Aceites Registrados</h1>
+            <h1 class="mt-5">Búsqueda de Aceites Registrados</h1>
             <form id="searchForm" class="mt-4">
                 <div class="form-group">
                     <label for="searchProductId">Buscar por ID del Producto</label>
                     <input type="text" class="form-control" id="searchProductId">
                 </div>
                 <button type="submit" class="btn btn-success">Buscar</button>
-                <button id="registro" type="button" class="btn btn-primary">Registrar Tarro</button>
             </form>
             <div id="tarrosList" class="mt-4"></div>
             <div id="pagination" class="mt-3"></div>
         </div>
-    
-        <div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="sellModalLabel">Marcar como Vendido</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="nombreCliente" class="form-label">Nombre del Comprador</label>
-                            <input type="text" class="form-control" id="nombreCliente" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="fechaVenta" class="form-label">Fecha de Venta</label>
-                            <input type="date" class="form-control" id="fechaVenta" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary" id="confirmSellButton">Confirmar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    
-        <!-- Modal de Mensajes -->
-        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="messageModalLabel">Mensaje</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" id="messageModalBody">
-                        <!-- El mensaje se insertará aquí -->
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </header>
-    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
@@ -172,11 +126,7 @@
                     <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
                 `;
 
-                if (!block.sold) {
-                    blockDiv.innerHTML += `
-                        <button class="btn btn-warning mt-2" id="sellButton-${block.data.productId}" onclick="sellTarro('${block.data.productId}', this)">Marcar como Vendido</button>
-                    `;
-                } else {
+                if (block.sold) {
                     const nombreCliente = localStorage.getItem(`soldName-${block.data.productId}`) || 'Desconocido';
                     const fechaVenta = localStorage.getItem(`fechaVenta-${block.data.productId}`) || 'No disponible';
                     blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
@@ -195,47 +145,6 @@
                 };
                 pagination.appendChild(pageButton);
             }
-        }
-
-        function sellTarro(productId, button) {
-            const modal = new bootstrap.Modal(document.getElementById('sellModal'));
-            modal.show();
-
-            document.getElementById('confirmSellButton').onclick = async function () {
-                const nombreCliente = document.getElementById('nombreCliente').value;
-                const fechaVenta = document.getElementById('fechaVenta').value;
-
-                if (!nombreCliente || !fechaVenta) {
-                    showMessage("El nombre del comprador y la fecha de venta son obligatorios.", "error");
-                    return;
-                }
-
-                const response = await fetch('/sellTarro', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ productId, nombreCliente, fechaVenta })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    showMessage(data.message, "success");
-                    button.style.display = 'none';
-                    localStorage.setItem(`sold-${productId}`, 'true');
-                    localStorage.setItem(`soldName-${productId}`, nombreCliente);
-                    localStorage.setItem(`fechaVenta-${productId}`, fechaVenta);
-                    loadTarros(currentPage);
-                    modal.hide();
-                } else {
-                    showMessage('Error: ' + data.message, "error");
-                }
-            };
-        }
-
-        function showMessage(message, type) {
-            const messageModalBody = document.getElementById('messageModalBody');
-            messageModalBody.innerText = message;
-            const messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
-            messageModal.show();
         }
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
@@ -262,13 +171,13 @@
                     <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
                     <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${filteredBlock.hash} <br>
-                    <strong>Estado:</strong> ${filteredBlock.sold || localStorage.getItem(`sold-${filteredBlock.data.productId}`) ? 'Vendido' : 'Disponible'} <br>
+                    <strong>Estado:</strong> ${filteredBlock.sold ? 'Vendido' : 'Disponible'} <br>
                 `;
 
-                if (!(filteredBlock.sold || localStorage.getItem(`sold-${filteredBlock.data.productId}`))) {
-                    blockDiv.innerHTML += `
-                        <button class="btn btn-warning mt-2" id="sellButton-${filteredBlock.data.productId}" onclick="sellTarro('${filteredBlock.data.productId}', this)">Marcar como Vendido</button>
-                    `;
+                if (filteredBlock.sold) {
+                    const nombreCliente = localStorage.getItem(`soldName-${filteredBlock.data.productId}`) || 'Desconocido';
+                    const fechaVenta = localStorage.getItem(`fechaVenta-${filteredBlock.data.productId}`) || 'No disponible';
+                    blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
                 }
 
                 tarrosList.appendChild(blockDiv);
@@ -278,10 +187,7 @@
         });
 
         loadTarros();
-        // Redirige a la página de registro cuando se hace clic en "Registrar Tarro"
-        document.getElementById('registro').onclick = function() {
-            window.location.href = '/registro.html'; // Cambia la URL según sea necesario
-        };
+    
     </script>
 </body>
 </html>
