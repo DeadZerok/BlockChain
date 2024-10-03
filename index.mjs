@@ -111,9 +111,9 @@ function handleGetRequest(req, res) {
         // Devolver el estado del tarro (vendido o disponible)
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ productId: block.data, sold: block.sold }));
-    } else if (method === 'GET' && url === '/search.html') {
-        // Servir el archivo search.html
-        const filepath = path.join(__dirname, 'public', 'search.html');
+    } else if (method === 'GET' && url === '/ventaAceite.html') {
+        // Servir el archivo ventaAceite.html
+        const filepath = path.join(__dirname, 'public', 'ventaAceite.html');
         fs.readFile(filepath, (err, data) => {
             if (err) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
