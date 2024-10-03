@@ -126,8 +126,22 @@ function handleGetRequest(req, res) {
             }
         });
     } else if (method === 'GET' && url === '/registro.html') {
-        // Servir el archivo search.html
+        // Servir el archivo registro.html
         const filepath = path.join(__dirname, 'public', 'registro.html');
+        fs.readFile(filepath, (err, data) => {
+            if (err) {
+                res.writeHead(404, { 'Content-Type': 'text/plain' });
+                res.write('404 Not Found');
+                res.end();
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.write(data);
+                res.end();
+            }
+        });
+    }else if (method === 'GET' && url === '/busquedaClient.html') {
+        // Servir el archivo registro.html
+        const filepath = path.join(__dirname, 'public', 'busquedaClient.html');
         fs.readFile(filepath, (err, data) => {
             if (err) {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
