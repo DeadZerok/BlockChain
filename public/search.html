@@ -163,6 +163,7 @@
                 blockDiv.innerHTML = `
                     <strong>ID:</strong> ${block.data.productId} <br>
                     <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Distribuidor:</strong> ${block.data.productDistribuidor} <br>
                     <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${block.hash} <br>
                     <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
@@ -255,6 +256,7 @@
                 blockDiv.className = 'border p-2 mb-2';
                 blockDiv.innerHTML = `
                     <strong>ID:</strong> ${filteredBlock.data.productId} <br>
+                    <strong>Distribuidor:</strong> ${block.data.product || 'Distribuidor no disponible'} <br>
                     <strong>Nombre:</strong> ${filteredBlock.data.productNombre} <br>
                     <strong>Fecha de Registro:</strong> ${new Date(filteredBlock.data.productFecha).toLocaleDateString()} <br>
                     <strong>Hash:</strong> ${filteredBlock.hash} <br>

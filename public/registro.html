@@ -99,19 +99,18 @@
                 <div class="form-group">
                     <label for="productId">ID del Producto</label>
                     <input type="text" class="form-control" id="productId" required>
-                    
-                    <label for="distribuidor">Distribuido a </label>
-                    <select class="form-select" id="distribuidor" aria-label="Distribuidor">
+                    <label for="productNombre">Nombre del Producto</label>
+                    <input type="text" class="form-control" id="productNombre" required>
+
+                    <label for="productDistribuidor">Distribuido a</label>
+                    <select class="form-select" id="productDistribuidor" aria-label="productDistribuidor">
                         <option value="Liquimolly">Liquimolly</option>
                         <option value="Motul">Motul</option>
                         <option value="Castrol">Castrol</option>
                     </select>
 
-                    <label for="productNombre">Nombre del Producto</label>
-                    <input type="text" class="form-control" id="productNombre" required>
                     <label for="productFecha">Fecha de Registro</label>
                     <input type="date" class="form-control" id="productFecha" required>
-                    
                 </div>
                 <div class="button-container">
                     <button id="searchButton" class="btn btn-primary">Verificar</button>
@@ -134,7 +133,7 @@
             const productId = document.getElementById('productId').value;
             const productNombre = document.getElementById('productNombre').value;
             const productFecha = document.getElementById('productFecha').value;
-            const distribuidor = document.getElementById('distribuidor').value;
+            const productDistribuidor = document.getElementById('productDistribuidor').value;
 
             // Registro del tarro
             const response = await fetch('/addTarro', {
@@ -144,7 +143,7 @@
                     productId,
                     productNombre,
                     productFecha,
-                    distribuidor
+                    productDistribuidor
                 })
             });
 

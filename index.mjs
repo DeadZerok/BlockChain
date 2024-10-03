@@ -24,10 +24,10 @@ function handlePostRequest(req, res) {
 
         //datos del tarro
         if (url === '/addTarro') {
-            const { productId, productNombre, productFecha, distribuidor } = data;
+            const { productId, productNombre, productFecha, productDistribuidor } = data;
 
              // Validar que todos los datos estén presentes en la solicitud
-            if (!productId || !productNombre || !productFecha|| !distribuidor) {
+            if (!productId || !productNombre || !productFecha || !productDistribuidor) {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
                 res.end('Todos los campos (ID, nombre, fecha y distribuidor) son requeridos.');
                 return;
@@ -42,7 +42,7 @@ function handlePostRequest(req, res) {
             }
 
             // Añadir un nuevo bloque con el producto ID a la cadena de bloques
-            aceiteChain.addBlock(productId, productNombre, productFecha, distribuidor);
+            aceiteChain.addBlock(productId, productNombre, productFecha,productDistribuidor);
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Tarro añadido con éxito.');
         } else if (url === '/sellTarro') {

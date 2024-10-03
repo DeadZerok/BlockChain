@@ -50,7 +50,7 @@ class BlockChain {
     }
 
     // Función que añade un nuevo bloque con los datos proporcionados
-    addBlock(productId, productNombre, productFecha, distribuidor) {
+    addBlock(productId, productNombre, productFecha, productDistribuidor) {
         let prevBlock = this.getLastBlock();  // Obtiene el último bloque actual de la cadena
         
         // Crear un objeto con toda la información del tarro
@@ -58,7 +58,7 @@ class BlockChain {
             productId,
             productNombre,
             productFecha,
-            distribuidor
+            productDistribuidor
         };
 
         // Crea un nuevo bloque con el índice siguiente al último bloque, y su hash anterior
