@@ -70,10 +70,10 @@
                     <a class="nav-link" href="/registro.html">Registro</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/search.html">distribuidor</a>
+                    <a class="nav-link" href="/search.html">Distribuidor</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/busquedaClient.html">Verificacion</a>
+                    <a class="nav-link" href="/busquedaClient.html">Verificación</a>
                 </li>
             </ul>
         </div>
@@ -101,21 +101,28 @@
             <!-- Contenido de cada distribuidor -->
             <div class="tab-content" id="myTabContent">
                 <div class="tab-pane fade show active" id="motul" role="tabpanel" aria-labelledby="motul-tab">
+                    <div class="form-group mt-3">
+                        <input type="text" id="motulSearch" class="form-control" placeholder="Buscar por ID de Motul">
+                    </div>
                     <div id="motulList" class="mt-4"></div>
                 </div>
                 <div class="tab-pane fade" id="LiquiMoly" role="tabpanel" aria-labelledby="LiquiMoly-tab">
+                    <div class="form-group mt-3">
+                        <input type="text" id="LiquiMolySearch" class="form-control" placeholder="Buscar por ID de Liqui Moly">
+                    </div>
                     <div id="LiquiMolyList" class="mt-4"></div>
                 </div>
                 <div class="tab-pane fade" id="castrol" role="tabpanel" aria-labelledby="castrol-tab">
+                    <div class="form-group mt-3">
+                        <input type="text" id="castrolSearch" class="form-control" placeholder="Buscar por ID de Castrol">
+                    </div>
                     <div id="castrolList" class="mt-4"></div>
                 </div>
             </div>
 
             <div id="pagination" class="mt-3"></div>
 
-
             <!-- modal marcar vendido -->
-        
             <div class="modal fade" id="sellModal" tabindex="-1" aria-labelledby="sellModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -140,7 +147,7 @@
                     </div>
                 </div>
             </div>
-        
+
             <!-- Modal de Mensajes -->
             <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -161,7 +168,6 @@
 
         </div>
 
-        
     </header>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
@@ -169,10 +175,12 @@
     <script>
         let currentPage = 1;
         const itemsPerPage = 6;
+        let allTarros = []; // Almacenar todos los tarros
 
         async function loadTarros() {
             const response = await fetch('/chain');
             const chain = await response.json();
+            allTarros = chain; // Guardar todos los tarros para la búsqueda
 
             const motulList = document.getElementById('motulList');
             const LiquiMolyList = document.getElementById('LiquiMolyList');
@@ -204,8 +212,8 @@
                     blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
                 }
 
-                // Filtrar por distribuidor y agregar al contenedor correspondiente
-                if (block.data.productDistribuidor === 'Motul') {
+                                // Filtrar por distribuidor y agregar al contenedor correspondiente
+                                if (block.data.productDistribuidor === 'Motul') {
                     motulList.appendChild(blockDiv);
                 } else if (block.data.productDistribuidor === 'LiquiMoly') {
                     LiquiMolyList.appendChild(blockDiv);
@@ -214,6 +222,117 @@
                 }
             });
         }
+
+        // Función de búsqueda para Motul
+        document.getElementById('motulSearch').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const motulList = document.getElementById('motulList');
+            motulList.innerHTML = ''; // Limpiar la lista
+
+            const filteredTarros = allTarros.filter(block => 
+                block.data.productDistribuidor === 'Motul' && 
+                block.data.productId.toString().includes(searchValue)
+            );
+
+            filteredTarros.forEach(block => {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${block.data.productId} <br>
+                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Distribuidor:</strong> ${block.data.productDistribuidor} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                `;
+
+                if (!block.sold) {
+                    blockDiv.innerHTML += `
+                        <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}', this)">Marcar como Vendido</button>
+                    `;
+                } else {
+                    const nombreCliente = localStorage.getItem(`soldName-${block.data.productId}`) || 'Desconocido';
+                    const fechaVenta = localStorage.getItem(`fechaVenta-${block.data.productId}`) || 'No disponible';
+                    blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
+                }
+
+                motulList.appendChild(blockDiv);
+            });
+        });
+
+        // Función de búsqueda para Liqui Moly
+        document.getElementById('LiquiMolySearch').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const LiquiMolyList = document.getElementById('LiquiMolyList');
+            LiquiMolyList.innerHTML = ''; // Limpiar la lista
+
+            const filteredTarros = allTarros.filter(block => 
+                block.data.productDistribuidor === 'LiquiMoly' && 
+                block.data.productId.toString().includes(searchValue)
+            );
+
+            filteredTarros.forEach(block => {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${block.data.productId} <br>
+                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Distribuidor:</strong> ${block.data.productDistribuidor} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                `;
+
+                if (!block.sold) {
+                    blockDiv.innerHTML += `
+                        <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}', this)">Marcar como Vendido</button>
+                    `;
+                } else {
+                    const nombreCliente = localStorage.getItem(`soldName-${block.data.productId}`) || 'Desconocido';
+                    const fechaVenta = localStorage.getItem(`fechaVenta-${block.data.productId}`) || 'No disponible';
+                    blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
+                }
+
+                LiquiMolyList.appendChild(blockDiv);
+            });
+        });
+
+        // Función de búsqueda para Castrol
+        document.getElementById('castrolSearch').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const castrolList = document.getElementById('castrolList');
+            castrolList.innerHTML = ''; // Limpiar la lista
+
+            const filteredTarros = allTarros.filter(block => 
+                block.data.productDistribuidor === 'Castrol' && 
+                block.data.productId.toString().includes(searchValue)
+            );
+
+            filteredTarros.forEach(block => {
+                const blockDiv = document.createElement('div');
+                blockDiv.className = 'border p-2 mb-2';
+                blockDiv.innerHTML = `
+                    <strong>ID:</strong> ${block.data.productId} <br>
+                    <strong>Nombre:</strong> ${block.data.productNombre} <br>
+                    <strong>Distribuidor:</strong> ${block.data.productDistribuidor} <br>
+                    <strong>Fecha de Registro:</strong> ${new Date(block.data.productFecha).toLocaleDateString()} <br>
+                    <strong>Hash:</strong> ${block.hash} <br>
+                    <strong>Estado:</strong> ${block.sold ? 'Vendido' : 'Disponible'} <br>
+                `;
+
+                if (!block.sold) {
+                    blockDiv.innerHTML += `
+                        <button class="btn btn-warning mt-2" onclick="sellTarro('${block.data.productId}', this)">Marcar como Vendido</button>
+                    `;
+                } else {
+                    const nombreCliente = localStorage.getItem(`soldName-${block.data.productId}`) || 'Desconocido';
+                    const fechaVenta = localStorage.getItem(`fechaVenta-${block.data.productId}`) || 'No disponible';
+                    blockDiv.innerHTML += `<strong style="color: red;">Vendido a:</strong> ${nombreCliente}<br><strong style="color: red;">Fecha de Venta:</strong> ${fechaVenta}<br>`;
+                }
+
+                castrolList.appendChild(blockDiv);
+            });
+        });
 
         function sellTarro(productId, button) {
             const modal = new bootstrap.Modal(document.getElementById('sellModal'));
