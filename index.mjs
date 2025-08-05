@@ -26,7 +26,7 @@ function handlePostRequest(req, res) {
         if (url === '/addTarro') {
             const { productId, productNombre, productFecha, productDistribuidor } = data;
 
-             // Validar que todos los datos estén presentes en la solicitud
+            // Validar que todos los datos estén presentes en la solicitud
             if (!productId || !productNombre || !productFecha || !productDistribuidor) {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
                 res.end('Todos los campos (ID, nombre, fecha y distribuidor) son requeridos.');
@@ -42,7 +42,7 @@ function handlePostRequest(req, res) {
             }
 
             // Añadir un nuevo bloque con el producto ID a la cadena de bloques
-            aceiteChain.addBlock(productId, productNombre, productFecha,productDistribuidor);
+            aceiteChain.addBlock(productId, productNombre, productFecha, productDistribuidor);
             res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end('Tarro añadido con éxito.');
         } else if (url === '/sellTarro') {
@@ -56,7 +56,7 @@ function handlePostRequest(req, res) {
                 return;
             }
 
-             // Verifica si el tarro ya ha sido vendido
+            // Verifica si el tarro ya ha sido vendido
             if (block.sold) {
                 res.writeHead(400, { 'Content-Type': 'text/plain' });
                 res.end('Este tarro ya fue vendido.');
@@ -139,7 +139,7 @@ function handleGetRequest(req, res) {
                 res.end();
             }
         });
-    }else if (method === 'GET' && url === '/busquedaClient.html') {
+    } else if (method === 'GET' && url === '/busquedaClient.html') {
         // Servir el archivo registro.html
         const filepath = path.join(__dirname, 'public', 'busquedaClient.html');
         fs.readFile(filepath, (err, data) => {
@@ -153,8 +153,24 @@ function handleGetRequest(req, res) {
                 res.end();
             }
         });
-    }else {
-        // Manejar cualquier otra ruta no definida con un error 404
+    }// 1) CSS
+    else if (url.startsWith('/css/')) {
+        serveStaticFile(res, url, 'text/css');
+    }
+    // 2) Imágenes
+    else if (url.startsWith('/img/')) {
+        const ext = path.extname(url).toLowerCase();
+        const contentType =
+            ext === '.png' ? 'image/png' :
+                ext === '.jpg' ? 'image/jpeg' :
+                    ext === '.jpeg' ? 'image/jpeg' :
+                        ext === '.gif' ? 'image/gif' :
+                            ext === '.svg' ? 'image/svg+xml' :
+                                'application/octet-stream';
+        serveStaticFile(res, url, contentType);
+    }
+    // 3) Resto → 404
+    else {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
         res.end('404 Not Found');
     }
@@ -162,7 +178,11 @@ function handleGetRequest(req, res) {
 
 // Función para servir archivos estáticos
 function serveStaticFile(res, filePath, contentType) {
-    const fullPath = path.join(__dirname, 'public', filePath);
+    // 1. Eliminamos todas las barras iniciales: "/css/registro.css" → "css/registro.css"
+    const cleanPath = filePath.replace(/^\/+/, '');
+
+    // 2. Construimos la ruta real dentro de public/
+    const fullPath = path.join(__dirname, 'public', cleanPath);
     fs.readFile(fullPath, (err, data) => {
         if (err) {
             res.writeHead(404, { 'Content-Type': 'text/plain' });
