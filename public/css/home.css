@@ -13,8 +13,7 @@ body {
 }
 
 .btn-warning {
-    background-color: #075eff; /* Color del botón */
-    border-color: #ffc107; /* Borde del botón */
+    background-color: #ffc107; /* Color del botón */
 }
 
 .header-bg {
